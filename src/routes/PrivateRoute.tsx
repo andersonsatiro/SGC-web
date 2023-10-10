@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext } from 'react';
+import { ReactNode, useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import { GlobalContext } from '../context/GlobalContext';
 

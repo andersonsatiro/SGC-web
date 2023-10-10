@@ -1,29 +1,32 @@
 import { createContext, useState } from 'react';
 
 export const GlobalContext = createContext<{
-  count: number;
-  isAuthenticated: boolean;
-  click: () => void;
-
+  isAuthenticated: boolean,
+  username: string | null,
+  setUsername: (newUsername: string) => void,
+  password: string | null,
+  setPassword: (newPassword: string) => void,
 }>({
-  count: 0,
-  click: () => {},
   isAuthenticated: true,
+  username: "",
+  setUsername: () => {},
+  password: "",
+  setPassword: () => {}
 });
 
 export function GlobalContextProvider({ children }: { children: React.ReactNode }) {
-  const [count, setCount] = useState(0)
   const [isAuthenticated] = useState(true)
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
 
-  const click = () => {
-    setCount(count + 1);
-  };
 
   return (
     <GlobalContext.Provider value={{
-      count,
-      click,
       isAuthenticated,
+      username,
+      setUsername,
+      password,
+      setPassword
     }}>
       {children}
     </GlobalContext.Provider>
