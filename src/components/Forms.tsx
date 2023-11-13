@@ -56,7 +56,7 @@ export function Forms(){
             data-invalidData={invalidData}
             type="text"
             className='p-3 min-w-[280px] bg-zinc-950 border-[1px] border-solid
-             border-zinc-400 rounded-md text-zinc-400 text-xs font-medium data-[invalidData=true]:border-red-400'
+            border-zinc-400 rounded-md text-zinc-400 text-xs font-medium data-[invalidData=true]:border-red-400'
             placeholder='Usuário'
             onChange={handleUsername}
           />
@@ -64,7 +64,7 @@ export function Forms(){
             data-invalidData={invalidData}
             type="password"
             className='p-3 min-w-[280px] bg-zinc-950 border-[1px] border-solid
-             border-zinc-400 rounded-md text-zinc-400 text-xs font-medium data-[invalidData=true]:border-red-400'
+          border-zinc-400 rounded-md text-zinc-400 text-xs font-medium data-[invalidData=true]:border-red-400'
             placeholder='Senha'
             onChange={handlePassword}
           />
