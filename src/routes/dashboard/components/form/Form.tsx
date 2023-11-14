@@ -5,7 +5,7 @@ import { SelectionButton } from './SelectionButton'
 import { Input } from './Input'
 
 export function Form() {
-    const { leaderFormIsActive, submitForm, formErrorMessageIsActive, formErrorMessage } = useContext(GlobalContext)
+    const { leaderFormIsActive, submitForm, formErrorMessageIsActive, formErrorMessage, submitState } = useContext(GlobalContext)
 
     return(
         <div className='flex flex-col items-center justify-center gap-4'>
@@ -40,8 +40,15 @@ export function Form() {
                     <div data-errorMessage={formErrorMessageIsActive} className='w-full h-[0.5px] bg-zinc-500 data-[errorMessage=true]:bg-red-300'></div>
                 </div>
             
-                <button onClick={(e) => submitForm(e)} className='w-full py-2 text-sm text-white font-bold bg-indigo-400 rounded-lg hover:bg-indigo-500 '>
-                    cadastrar
+                <button
+                    onClick={submitForm}
+                    className={`w-full py-2 text-sm text-white font-bold bg-indigo-400 rounded-lg hover:bg-indigo-500
+                        ${submitState == 'cadastrando' ? 'bg-indigo-800 hover:bg-indigo-800 cursor-not-allowed' :
+                        submitState == 'sucesso' && 'bg-emerald-500 hover:bg-emerald-500'
+                    }`}
+                    disabled={submitState != 'cadastrar' ? true : false}
+                    >
+                    {submitState}
                 </button>
             </footer>
         </div>

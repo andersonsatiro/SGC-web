@@ -62,6 +62,7 @@ export const GlobalContext = createContext<{
   formErrorMessage: string,
   formErrorMessageIsActive: boolean,
 
+  submitState: string,
 
 }>({
   username: "",
@@ -97,6 +98,8 @@ export const GlobalContext = createContext<{
 
   formErrorMessage: "",
   formErrorMessageIsActive: false,
+
+  submitState: '',
 });
 
 export function GlobalContextProvider({ children }: { children: React.ReactNode }) {
@@ -124,6 +127,8 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
   
   const [formErrorMessage, setFormErrorMessage] = useState("")
   const [formErrorMessageIsActive, setFormErrorMessageIsActive] = useState(false)
+
+  const [submitState, setSubmitState] = useState('cadastrar')
 
   const getData = async () => {
     const token = Cookies.get('token')
@@ -174,27 +179,23 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
     )
   }
 
-  /// SUBMIT FORM 
-
-  const submitForm = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault()
+  const submitForm = async () => {
     const token = Cookies.get('token')
 
     if(typeof leadersName === 'string' && leadersName.trim() === ""){
       setFormErrorMessage("Insira um nome para a Liderança")
       setFormErrorMessageIsActive(true)
     } else if(leaderJobId.trim() === "") {
-      setFormErrorMessage("Escola o cargo da Liderança")
+      setFormErrorMessage("Escolha o cargo da Liderança")
       setFormErrorMessageIsActive(true)
     } else {
 
-
-      // Verificar a sensibilidade de maiúsculo e minúsculo
       let leadersNameLowerCase
       if(typeof leadersName === 'string'){
         leadersNameLowerCase = leadersName.toLowerCase()
       }
 
+      setSubmitState('cadastrando')
       const leaderExists = await api.get(`leader/${leadersNameLowerCase}`, ({
         headers: {
           Authorization: `Bearer ${token}`
@@ -202,30 +203,33 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
       }))
 
       if(leaderExists.data){
-        console.log("O líder existe")
+        setFormErrorMessage(`${leadersNameLowerCase} já é uma Liderança`)
+        setFormErrorMessageIsActive(true)
+        setSubmitState('cadastrar')
       } else {
-        console.log("o líder n existe, papai. rexpeita nóis")
+        try{
+          await api.post('register/leader', {
+            name: leadersName,
+            jobId: leaderJobId,
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+
+          setSubmitState('sucesso')
+
+          setTimeout(() => {
+            setSubmitState('cadastrar')
+          },3000)
+
+        } catch(error){
+          leaderJobId == "" ? (setFormErrorMessage("Tente novamente"), setFormErrorMessageIsActive(true), setSubmitState('cadastrar')) : console.log(error)
+        }
       }
-
-      /*try{
-        const response = await api.post('register/leader', {
-          name: leadersName,
-          jobId: leaderJobId,
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        })
-
-        console.log(response.data)
-      } catch(error){
-        leaderJobId == "" ? (setFormErrorMessage("Escolha um cargo para a Liderança"), setFormErrorMessageIsActive(true)) : console.log(error)
-      }*/
-    
     }
   }
 
-  /// SUBMIT FORM 
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -285,6 +289,8 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
 
       formErrorMessage,
       formErrorMessageIsActive,
+
+      submitState,
 
     }}>
       {children}

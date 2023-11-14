@@ -10,7 +10,7 @@ import { Form } from "./components/form/Form";
 export function Dashboard() {
 
     const navigate = useNavigate()
-    const { getData, leaderJobId, collaboratorJobId, collaboratorLeaderId } = useContext(GlobalContext)
+    const { getData } = useContext(GlobalContext)
 
     useEffect(() => {
         getData()
@@ -29,12 +29,6 @@ export function Dashboard() {
                 <ChangeForms />
                 <div className="w-[1px] h-32 bg-zinc-500/20"></div>
                 <Form />
-            </div>
-
-            <div className="flex flex-col gap-2 text-indigo-400">
-                <p>Leader Job ID: {leaderJobId}</p>
-                <p>Collab Job ID: {collaboratorJobId}</p>
-                <p>Leader ID: {collaboratorLeaderId}</p>
             </div>
         </div>
     )
