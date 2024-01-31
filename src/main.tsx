@@ -7,6 +7,8 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { Dashboard } from './routes/dashboard/Dashboard.tsx'
 import { ErrorPage } from './routes/ErrorPage.tsx'
 import { PrivateRoute } from './routes/PrivateRoute.jsx'
+import { Collaborators } from './routes/dashboard/collaborators/Collaborators.tsx'
+import { Leaders } from './routes/dashboard/leaders/Leaders.tsx'
 
 const router = createBrowserRouter([
   {
@@ -15,8 +17,16 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />
   },
   {
-    path: "dashboard",
+    path: "menu-inicial",
     element: <PrivateRoute><Dashboard /></PrivateRoute>
+  },
+  {
+    path: "menu-inicial/colaboradores",
+    element: <PrivateRoute> <Collaborators /> </PrivateRoute>
+  },
+  {
+    path: "menu-inicial/lideranças",
+    element: <PrivateRoute> <Leaders /> </PrivateRoute>
   }
 ])
 

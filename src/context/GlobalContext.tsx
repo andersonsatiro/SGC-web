@@ -18,6 +18,7 @@ interface Collaborator {
   jobRole: string,
   salary: number,
   influence: number,
+  leaderName: string,
   leaderId: string
 }
 
@@ -48,7 +49,7 @@ export const GlobalContext = createContext<{
   handleInput: (paramsValue: string | number, paramsType: string, paramsContent: string) => void,
   leadersName: string | number,
   leaderInfluenceValue: number | string,
-  colaboratorsName: string | number,
+  collaboratorsName: string | number,
   collaboratorSalary: number | string,
   CollaboratorInfluenceValue: number | string,
   leaderJobId: string,
@@ -57,13 +58,29 @@ export const GlobalContext = createContext<{
   setCollaboratorJobId: (paramsJobId: string) => void,
   collaboratorLeaderId: string,
   setCollaboratorLeaderId: (paramsCollaboratorLeaderId: string) => void,
-  submitForm: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
+  submitFormLeader: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
+  submitFormCollaborator: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
 
   formErrorMessage: string,
   formErrorMessageIsActive: boolean,
 
   submitState: string,
 
+  listedCollaborators: Collaborator[],
+  setListedCollaborators: (collaborators: Collaborator[]) => void,
+
+  workModalIsActive: boolean,
+  setWorkModalIsActive: (value: boolean) => void,
+
+  listedLeaders: Leader[],
+  setListedLeaders: (leaders: Leader[]) => void,
+  leadersFilterIsActive: boolean,
+  setLeadersFilterIsActive: (value: boolean) => void,
+  leadersFilterModalIsActive: boolean,
+  setLeadersFilterModalIsActive: (value: boolean) => void,
+
+  callingDB: boolean,
+  setCallingDB: (value: boolean) => void,
 }>({
   username: "",
   setUsername: () => {},
@@ -85,7 +102,7 @@ export const GlobalContext = createContext<{
   handleInput: () => {},
   leadersName: "",
   leaderInfluenceValue: 0,
-  colaboratorsName: "",
+  collaboratorsName: "",
   collaboratorSalary: 0.0,
   CollaboratorInfluenceValue: 0,
   leaderJobId: "",
@@ -94,12 +111,28 @@ export const GlobalContext = createContext<{
   setCollaboratorJobId: () => {},
   collaboratorLeaderId: "",
   setCollaboratorLeaderId: () => {},
-  submitForm: () => {},
+  submitFormLeader: () => {},
+  submitFormCollaborator: () => {},
 
   formErrorMessage: "",
   formErrorMessageIsActive: false,
 
-  submitState: '',
+  submitState: "",
+  listedCollaborators: [],
+  setListedCollaborators:  () => {},
+
+  workModalIsActive: false,
+  setWorkModalIsActive: () => {},
+
+  listedLeaders: [],
+  setListedLeaders: () => {},
+  leadersFilterIsActive: false,
+  setLeadersFilterIsActive: () => {},
+  leadersFilterModalIsActive: false,
+  setLeadersFilterModalIsActive: () => {},
+
+  callingDB: false,
+  setCallingDB: () => {},
 });
 
 export function GlobalContextProvider({ children }: { children: React.ReactNode }) {
@@ -118,7 +151,7 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
 
   const [leadersName, setLeadersName] = useState<string | number>("")
   const [leaderInfluenceValue, setLeaderInfluenceValue] = useState<number | string>(0)
-  const [colaboratorsName, setColaboratorsName] = useState<string | number>("")
+  const [collaboratorsName, setCollaboratorsName] = useState<string | number>("")
   const [collaboratorSalary, setCollaboratorSalary] = useState<string | number>(0.0)
   const [CollaboratorInfluenceValue, setCollaboratorInfluenceValue] = useState<number | string>(0)
   const [leaderJobId, setLeaderJobId] = useState("")
@@ -130,106 +163,234 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
 
   const [submitState, setSubmitState] = useState('cadastrar')
 
+  const [listedCollaborators, setListedCollaborators] = useState<Collaborator[]>([])
+
+  const [workModalIsActive, setWorkModalIsActive] = useState(false)
+
+  const [listedLeaders, setListedLeaders] = useState<Leader[]>([])
+  const [leadersFilterIsActive, setLeadersFilterIsActive] = useState(false)
+  const [leadersFilterModalIsActive, setLeadersFilterModalIsActive] = useState(false)
+
+  const [callingDB, setCallingDB] = useState(false)
+
   const getData = async () => {
-    const token = Cookies.get('token')
-    const leadersResponse = await api.get('/leaders', ({
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }))
-    setLeaders(leadersResponse.data)
+    try {
+      const token = Cookies.get('token');
+  
+      const apiCall = async (endpoint: string) => {
+        const response = await api.get(endpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data;
+      };
 
-    const collaboratorsResponse = await api.get('/collaborators', ({
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }))
-    setCollaborators(collaboratorsResponse.data)
-
-    const leadersByAverageInfluence = await api.get('/leaders/influence', ({
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-    }))
-    setLeadersInfluence(leadersByAverageInfluence.data)
-
-    const jobPositionsResponse = await api.get('/jobPositions', ({
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }))
-    setJobPositions(jobPositionsResponse.data)
-
-    const leadershipPositionsResponse = await api.get('/leadershipPositions', ({
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }))
-    setLeadershipPositions(leadershipPositionsResponse.data)
-
-    setDataExists(true)
-  }
+      const [leaders, collaborators, leadersInfluence, jobPositions, leadershipPositions] = await Promise.all([
+        apiCall('/leaders'),
+        apiCall('/collaborators'),
+        apiCall('/leaders/influence'),
+        apiCall('/jobPositions'),
+        apiCall('/leadershipPositions'),
+      ]);
+  
+      setLeaders(leaders)
+      setCollaborators(collaborators)
+      setLeadersInfluence(leadersInfluence)
+      setJobPositions(jobPositions)
+      setLeadershipPositions(leadershipPositions)
+  
+      setDataExists(true)
+    } catch (error) {
+      console.error('Erro ao obter dados:', error);
+    }
+  };
 
   const handleInput = (value: string | number, type: string, content: string) => {
     leaderFormIsActive ?
     (type == "text" ?  setLeadersName(value): setLeaderInfluenceValue(value))
     :
-    (type == "text" ? setColaboratorsName(value):
+    (type == "text" ? setCollaboratorsName(value):
     (content == "salário" ? setCollaboratorSalary(value) : setCollaboratorInfluenceValue(value))
     )
   }
 
-  const submitForm = async () => {
-    const token = Cookies.get('token')
+  const checkIfLeaderExists = async (token: string | undefined) => {
 
-    if(typeof leadersName === 'string' && leadersName.trim() === ""){
-      setFormErrorMessage("Insira um nome para a Liderança")
-      setFormErrorMessageIsActive(true)
-    } else if(leaderJobId.trim() === "") {
-      setFormErrorMessage("Escolha o cargo da Liderança")
-      setFormErrorMessageIsActive(true)
-    } else {
+    let leadersNameLowerCase
+    if(typeof leadersName === 'string'){
+      leadersNameLowerCase = leadersName.toLowerCase()
+    }
 
-      let leadersNameLowerCase
-      if(typeof leadersName === 'string'){
-        leadersNameLowerCase = leadersName.toLowerCase()
-      }
-
-      setSubmitState('cadastrando')
+    try{
       const leaderExists = await api.get(`leader/${leadersNameLowerCase}`, ({
         headers: {
           Authorization: `Bearer ${token}`
         }
       }))
+      return leaderExists.data
 
-      if(leaderExists.data){
-        setFormErrorMessage(`${leadersNameLowerCase} já é uma Liderança`)
-        setFormErrorMessageIsActive(true)
-        setSubmitState('cadastrar')
-      } else {
-        try{
-          await api.post('register/leader', {
-            name: leadersName,
-            jobId: leaderJobId,
-          }, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          })
-
-          setSubmitState('sucesso')
-
-          setTimeout(() => {
-            setSubmitState('cadastrar')
-          },3000)
-
-        } catch(error){
-          leaderJobId == "" ? (setFormErrorMessage("Tente novamente"), setFormErrorMessageIsActive(true), setSubmitState('cadastrar')) : console.log(error)
+    } catch(error){
+      return null
+    }
+  }
+  
+  const registerNewLeader = async (token: string | undefined) => {
+    try{
+      await api.post('register/leader', {
+        name: leadersName,
+        jobId: leaderJobId,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      }
+      })
+      return true
+
+    }catch(error){
+      return false
     }
   }
 
+  const submitFormLeader = async () => {
+    setCallingDB(true)
+    const token = Cookies.get('token')
+
+    if(typeof leadersName === 'string' && leadersName.trim() === ""){
+      setFormErrorMessage("Insira um nome para a liderança")
+      setFormErrorMessageIsActive(true)
+    } else if(leaderJobId.trim() === "") {
+      setFormErrorMessage("Escolha o cargo da liderança")
+      setFormErrorMessageIsActive(true)
+    } else {
+
+      setSubmitState('cadastrando')
+      const responseCheckName = await checkIfLeaderExists(token)
+
+      if(responseCheckName == false){
+        const registeredLeader = await registerNewLeader(token)
+
+        if(registeredLeader){
+          setSubmitState('sucesso')
+          setTimeout(() => {
+            setSubmitState('cadastrar')
+          },3000)
+        } else {
+          setFormErrorMessage("Houve um problema. Tente novamente.")
+          setFormErrorMessageIsActive(true)
+          setSubmitState('cadastrar')
+        }
+           
+      } else {
+        responseCheckName == null ? 
+        setFormErrorMessage("Houve um problema. Tente novamente.") : setFormErrorMessage(`${leadersName} já é uma Liderança`)
+        setFormErrorMessageIsActive(true)
+        setSubmitState('cadastrar')
+      }
+
+      }
+      setCallingDB(false)
+  }
+
+  const checkIfCollaboratorExists = async (token: string | undefined) => {
+
+    let collaboratorNameLowerCase
+    if(typeof collaboratorsName === 'string'){
+      collaboratorNameLowerCase = collaboratorsName.toLowerCase()
+    }
+
+    try{
+      const collaboratorExists = await api.get(`collaborator/${collaboratorNameLowerCase}`, ({
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }))
+      return collaboratorExists.data
+
+    } catch(error){
+      return null
+    }
+  }
+
+  const registerNewCollaborator = async (token: string | undefined, numberOfInfluence: number, salary: number) => {
+    try{
+      await api.post('register/collaborator', {
+        name: collaboratorsName,
+        salary: salary,
+        jobId: collaboratorJobId,
+        leaderId: collaboratorLeaderId,
+        influence: numberOfInfluence,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      return true
+
+    }catch(error){
+      return false
+    }
+  }
+
+  
+  const submitFormCollaborator = async () => {
+    setCallingDB(true)
+    const token = Cookies.get('token')
+
+    let numberOfInfluence = 0
+    if(typeof CollaboratorInfluenceValue === 'string' && CollaboratorInfluenceValue.trim() != ""){
+      numberOfInfluence = Math.floor(parseInt(CollaboratorInfluenceValue))
+    }
+
+    let salary = 0
+    if(typeof collaboratorSalary === 'string'){
+      salary = parseFloat(collaboratorSalary)
+    }
+
+    if(typeof collaboratorsName === 'string' && collaboratorsName.trim() === ""){
+      setFormErrorMessage("Insira um nome para o colaborador")
+      setFormErrorMessageIsActive(true)
+    } else if(collaboratorJobId.trim() === "") {
+      setFormErrorMessage("Escolha o cargo do colaborador")
+      setFormErrorMessageIsActive(true)
+    } else if(numberOfInfluence < 0 || numberOfInfluence > 5){
+      setFormErrorMessage("Nível de influência inválido")
+      setFormErrorMessageIsActive(true)
+    } else if(collaboratorLeaderId.trim() === "") {
+      setFormErrorMessage("Escolha a liderança do colaborador")
+      setFormErrorMessageIsActive(true)
+    } else if(salary <= 0) {
+      setFormErrorMessage("Insira o salário do colaborador")
+      setFormErrorMessageIsActive(true)
+    } else {
+
+      setSubmitState('cadastrando')
+      const responseCheckName = await checkIfCollaboratorExists(token)
+
+      if(responseCheckName == false){
+        const registeredCollaborator = await registerNewCollaborator(token, numberOfInfluence, salary)
+
+        if(registeredCollaborator){
+          setCollaboratorInfluenceValue(0)
+          setSubmitState('sucesso')
+          setTimeout(() => {
+            setSubmitState('cadastrar')
+          },3000)
+        } else {
+          setFormErrorMessage("Houve um problema. Tente novamente.")
+          setFormErrorMessageIsActive(true)
+          setSubmitState('cadastrar')
+        }
+           
+      } else {
+        responseCheckName == null ? 
+        setFormErrorMessage("Houve um problema. Tente novamente.") : setFormErrorMessage(`${collaboratorsName} já é um colaborador`)
+        setFormErrorMessageIsActive(true)
+        setSubmitState('cadastrar')
+      } 
+    }
+    setCallingDB(false)
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -245,7 +406,7 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     setLeadersName("")
     setLeaderInfluenceValue(0)
-    setColaboratorsName("")
+    setCollaboratorsName("")
     setCollaboratorSalary(0.0)
     setCollaboratorInfluenceValue(0)
 
@@ -276,7 +437,7 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
       handleInput,
       leadersName,
       leaderInfluenceValue,
-      colaboratorsName,
+      collaboratorsName,
       collaboratorSalary,
       CollaboratorInfluenceValue,
       leaderJobId,
@@ -285,13 +446,28 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
       setCollaboratorJobId,
       collaboratorLeaderId,
       setCollaboratorLeaderId,
-      submitForm,
+      submitFormLeader,
+      submitFormCollaborator,
 
       formErrorMessage,
       formErrorMessageIsActive,
 
       submitState,
+      listedCollaborators,
+      setListedCollaborators,
 
+      workModalIsActive,
+      setWorkModalIsActive,
+
+      listedLeaders,
+      setListedLeaders,
+      leadersFilterIsActive,
+      setLeadersFilterIsActive,
+      leadersFilterModalIsActive,
+      setLeadersFilterModalIsActive,
+
+      callingDB,
+      setCallingDB,
     }}>
       {children}
     </GlobalContext.Provider>

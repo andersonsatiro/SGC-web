@@ -12,9 +12,14 @@ export function LeftBox({position, numberOfPeople, monthlyIncome, perCapita}: pr
 
     const { dataExists } = useContext(GlobalContext)
 
-    /*const handle = (monthlyIncome: number) => {
-        return monthlyIncome - 1599000
-    }*/
+    const transformToReal = (value: number) => {
+        return value.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+    }
 
     return(
         <div className='w-72 h-32 border-solid border-[1px] border-zinc-500 rounded hover:bg-zinc-900/70 cursor-pointer'>
@@ -28,11 +33,11 @@ export function LeftBox({position, numberOfPeople, monthlyIncome, perCapita}: pr
                     <footer className='h-1/3 px-4 flex items-center justify-between'>
                         <div className='flex flex-col items-start'>
                             <h3 className='text-zinc-400 text-[10px] font-semibold leading-3'>receita mensal</h3>
-                            <h2 className='text-green-500 text-[10px] font-semibold'>R$ {monthlyIncome}</h2>
+                            <h2 className='text-green-500 text-[10px] font-semibold'>{transformToReal(monthlyIncome)}</h2>
                         </div>
                         <div className='flex flex-col items-start'>
                             <h3 className='text-zinc-400 text-[10px]  font-semibold leading-3'>per capita</h3>
-                            <h2 className='text-green-500 text-[10px]  font-semibold'>R$ {perCapita}</h2>
+                            <h2 className='text-green-500 text-[10px]  font-semibold'>{transformToReal(perCapita)}</h2>
                         </div>
                     </footer>
                 </>
