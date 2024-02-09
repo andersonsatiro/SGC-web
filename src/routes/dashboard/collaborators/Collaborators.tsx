@@ -10,12 +10,14 @@ import { Loading } from "../../../components/Loading";
 import { NoCollaborators } from "./NoCollaborators";
 
 export function Collaborators () {
-    const { getData, leaders, listedCollaborators, setListedCollaborators, collaborators, setCallingDB } = useContext(GlobalContext)
+    const { getData, leaders, listedCollaborators, setListedCollaborators, collaborators,
+            setCallingDB, nameToFilter, setNameToFilter } = useContext(GlobalContext)
+
     const [trashItems, setTrashItems] = useState<string[]>([])
     const [sendingData, setSendingData] = useState(false)
     const [filterIsActive, setFilterIsActive] = useState(false)
     const [filterModalIsActive, setFilterModalIsActive] = useState(false)
-
+    
     const changeTrashItems = async (id: string) => {
         let itemExists = trashItems.includes(id)
         if(itemExists){
@@ -55,6 +57,35 @@ export function Collaborators () {
         setFilterModalIsActive(!filterModalIsActive)
     }
 
+    const transformToReal = (value: number) => {
+        return value.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+    }
+
+    const removeFilters = () => {
+        setListedCollaborators(collaborators)
+        setFilterIsActive(false)
+        setNameToFilter("")
+    }
+
+    const changeFilterByName = (name: string) => {
+        setNameToFilter(name)
+        if(name !== ""){
+            const filteredCollaborators = collaborators.filter((collaborator) =>
+                collaborator.name.toLowerCase().startsWith(name.toLowerCase()) 
+            )
+            setListedCollaborators(filteredCollaborators)
+            setFilterIsActive(true)
+        } else {
+            setListedCollaborators(collaborators)
+            setFilterIsActive(false)
+        }
+    }
+
     useEffect(() => {
         getData()
     },[])
@@ -72,7 +103,7 @@ export function Collaborators () {
                         Lista dos colaboradores
                         <p className="text-xs text-zinc-500 font-medium">
                             { listedCollaborators.length === 0 && !filterIsActive
-                                ? 'adicione o primeiro colaborador para visualizar a lista'
+                                ? 'adicione o primeiro colaborador para visualizar a lista ou clique em atualizar'
                                 : listedCollaborators.length === 0 && filterIsActive
                                 ? 'não existe nenhum colaborador que pertença ao filtro selecionado'
                                 :
@@ -81,7 +112,9 @@ export function Collaborators () {
                                     `com o filtro ativado, ${listedCollaborators.length} dos
                                     ${collaborators.length} colaboradores estão listados`
                                 :
-                                    `nenhum filtro ativado, portanto, todos os ${collaborators.length} colaboradores estão listados`
+                                    listedCollaborators.length === 1
+                                    ? `nenhum filtro ativado, portanto, o único colaborador está listada`
+                                    : `nenhum filtro ativado, portanto, todos os ${collaborators.length} colaboradores estão listados`
                             }
                         </p>   
 
@@ -104,7 +137,7 @@ export function Collaborators () {
                     {
                         filterIsActive  &&
                         <button
-                            onClick={() => {setListedCollaborators(collaborators), setFilterIsActive(false)}}
+                            onClick={removeFilters}
                             className='flex items-center gap-2 p-3 max-w-[200px]
                             border-solid border-[1px] border-zinc-500/20 rounded-md
                             ursor-pointer bg-indigo-400 hover:bg-indigo-500 text-zinc-200'
@@ -113,6 +146,18 @@ export function Collaborators () {
                             <FilterX className='h-3 w-3 text-zinc-200'/>
                         </button>
                     }
+
+                    <input
+                        type="text"
+                        className={`p-3 max-w-[150px] cursor-pointer text-center
+                        border-solid border-[1px] border-zinc-500/20 rounded-md
+                        bg-zinc-950 hover:bg-zinc-900/90 text-zinc-200 text-xs
+                        font-semibold ${sendingData && 'hover:cursor-not-allowed'}`}
+                        placeholder="buscar por nome"
+                        value={nameToFilter}
+                        disabled={sendingData ? true : false}
+                        onChange={(e) => changeFilterByName(e.target.value)}                      
+                    />
 
                     <ModifyTableButton
                         name="Filtrar colaboradores"
@@ -123,7 +168,7 @@ export function Collaborators () {
                         sendingData={sendingData}
                         filter={filterModalIsActive}
                         setFilterIsActive={setFilterIsActive}
-                        disabled={collaborators.length === 0 ? true : false}
+                        disabled={collaborators.length === 0 || listedCollaborators.length === 0 ? true : false}
                     />        
                 </div>
             </section>
@@ -168,8 +213,8 @@ export function Collaborators () {
                                         <p className="flex justify-center w-1/5">{name}</p>
                                         <p className="flex justify-center w-1/5">{jobRole}</p>
                                         <p className="flex justify-center w-1/5">{leaderName}</p>
-                                        <p className="flex justify-center w-1/5">R$ {salary}</p>                                   
-                                        <p className="flex justify-center w-1/5"> peso {influence}</p>
+                                        <p className="flex justify-center w-1/5">{transformToReal(salary)}</p>                                   
+                                        <p className="flex justify-center w-1/5"> peso {Number(influence.toFixed(2))}</p>
                                     </div>
                                 </div>
                             ))}

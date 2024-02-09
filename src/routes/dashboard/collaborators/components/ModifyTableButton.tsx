@@ -40,8 +40,9 @@ export function ModifyTableButton(
         onclick, sendingData, filter, setFilterIsActive, disabled
     }: ModifyTableButtonProps) {
 
-    const {setListedCollaborators, collaborators} = useContext(GlobalContext)
+    const {setListedCollaborators, collaborators, setNameToFilter} = useContext(GlobalContext)
 
+    const [fetchingFilterData, setFetchingFilterData] = useState(false)
     const [filterList, setFilterList] = useState(
         [
             {name: 'emprego',        type: 'emprego',        icon: Briefcase},
@@ -86,7 +87,8 @@ export function ModifyTableButton(
         }
 
         const filterBy = async (type: string, name: string, Icon: ElementType) => {
-
+            setFetchingFilterData(true)
+            setNameToFilter("")
             try{
                 switch (type) {
                     case 'emprego':
@@ -205,7 +207,9 @@ export function ModifyTableButton(
                     default:
                         break;
                 }
+                setFetchingFilterData(false)
             }catch(error){
+                setFetchingFilterData(false)
                 alert("Erro: tente novamente")
             }
         }
@@ -238,29 +242,33 @@ export function ModifyTableButton(
                     className='w-full absolute max-w-[200px] border-solid border-[1px] 
                     bg-zinc-950 border-zinc-500/20 rounded-md mt-1'
                     >
-
                         <header className='flex items-center justify-between p-3 
                             border-b-zinc-500/20 border-b-solid border-b-[1px]'
                         >
-                            <ArrowLeftFromLine className="h-3 w-3 text-red-500 hover:cursor-pointer" onClick={returnToInitialFilter} />
+                            <ArrowLeftFromLine
+                                className="h-3 w-3 text-red-500 hover:cursor-pointer"
+                                onClick={returnToInitialFilter}
+                            />
                             <h1 className='text-zinc-200 text-xs font-bold mr-3'>filtrar</h1>
                             <Sparkles className="h-3 w-3 text-indigo-400" />
                         </header>
                     
-                    {filterList.map(({name, type, icon: Icon}: filterItems, index) => (
-                        <div
-                            className={`flex items-center justify-between p-2 
-                                ${index !== filterList.length - 1 ? 'border-b-zinc-500/10 border-b-solid border-b-[1px]' : ''}
-                                hover:bg-zinc-900/90 cursor-pointer`
-                            }
-                            onClick={() => filterBy(type, name, Icon)}
-                            key={index}
-                            
-                        >
-                            <h1 className='text-zinc-200 text-xs mr-3'>{name}</h1>
-                            <Icon className="w-3 h-3 text-green-500" />
-                        </div>
-                    ))}
+
+                        {filterList.map(({name, type, icon: Icon}: filterItems, index) => (
+                            <div
+                                className={`flex items-center justify-between p-2 
+                                    ${index !== filterList.length - 1 ? 'border-b-zinc-500/10 border-b-solid border-b-[1px]' : ''}
+                                    hover:bg-zinc-900/90 cursor-pointer ${fetchingFilterData &&
+                                    'hover:cursor-not-allowed animate-pulse duration-1000 bg-zinc-900'}`
+                                }
+                                onClick={fetchingFilterData ? () => {} : () => filterBy(type, name, Icon)}
+                                key={index}
+                                
+                            >
+                                <h1 className='text-zinc-200 text-xs mr-3'>{name}</h1>
+                                <Icon className="w-3 h-3 text-green-500" />
+                            </div>
+                        ))}
                     
                 </div>
             }

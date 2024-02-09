@@ -13,12 +13,14 @@ interface Leader {
 }
 
 export function ShowLeaders() {
-    const { leaders, callingDB } = useContext(GlobalContext)
+    const { leaders, callingDB, setListedLeaders, setLeadersFilterIsActive } = useContext(GlobalContext)
     const [showingLeaders, setShowingLeaders] = useState(false)
 
     const navigate = useNavigate()
 
     const changeRoute = () => {
+        setListedLeaders(leaders)
+        setLeadersFilterIsActive(false)
         return navigate('/menu-inicial/lideranças')
     }
     

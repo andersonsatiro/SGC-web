@@ -17,7 +17,7 @@ export function Header({goTo}: headerProps) {
 
     const navigate = useNavigate()
 
-    const { setListedCollaborators, collaborators, callingDB} = useContext(GlobalContext)
+    const { setListedCollaborators, collaborators, callingDB, setNameToFilter, leaders} = useContext(GlobalContext)
 
     const logout = () => {
         Cookies.remove('token')
@@ -25,6 +25,7 @@ export function Header({goTo}: headerProps) {
     }
 
     const changeRoute = () => {
+        setNameToFilter("")
         setListedCollaborators(collaborators)
         return navigate(goTo)      
     }
@@ -50,8 +51,8 @@ export function Header({goTo}: headerProps) {
                             max-w-[50px] sm:min-w-[170px] sm:justify-between 
                             border-solid border-[1px] border-zinc-500/20 rounded-md
                             cursor-pointer hover:bg-zinc-900/90 font-bold
-                            ${callingDB && 'hover:cursor-not-allowed'}`}
-                            disabled={callingDB}
+                            ${callingDB || leaders.length === 0 && 'hover:cursor-not-allowed'}`}
+                            disabled={callingDB || leaders.length === 0}
                             onClick={changeRoute}
                         >
                             <ChevronsRight className='h-5 w-5' strokeWidth={1}/>

@@ -81,6 +81,9 @@ export const GlobalContext = createContext<{
 
   callingDB: boolean,
   setCallingDB: (value: boolean) => void,
+
+  nameToFilter: string,
+  setNameToFilter: (value: string) => void,
 }>({
   username: "",
   setUsername: () => {},
@@ -133,6 +136,9 @@ export const GlobalContext = createContext<{
 
   callingDB: false,
   setCallingDB: () => {},
+
+  nameToFilter: "",
+  setNameToFilter: () => {},
 });
 
 export function GlobalContextProvider({ children }: { children: React.ReactNode }) {
@@ -172,6 +178,8 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
   const [leadersFilterModalIsActive, setLeadersFilterModalIsActive] = useState(false)
 
   const [callingDB, setCallingDB] = useState(false)
+
+  const [nameToFilter, setNameToFilter] = useState("")
 
   const getData = async () => {
     try {
@@ -468,6 +476,9 @@ export function GlobalContextProvider({ children }: { children: React.ReactNode 
 
       callingDB,
       setCallingDB,
+
+      nameToFilter,
+      setNameToFilter,
     }}>
       {children}
     </GlobalContext.Provider>

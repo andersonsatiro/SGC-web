@@ -6,7 +6,7 @@ import { GeneralData } from "./components/generalData/GeneralData";
 import { GlobalContext } from "../../context/GlobalContext";
 import { ChangeForms } from "./components/changeForms/ChangeForms";
 import { Form } from "./components/form/FormDashboard";
-import { WorkModal } from "./components/workModal";
+import { WorkModal } from "./components/WorkModal";
 
 export function Dashboard() {
 
