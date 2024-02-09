@@ -1,10 +1,10 @@
-import { ArrowUp01, Briefcase, ChevronsDown, Users, HelpingHand, CheckCircle, ThumbsUp, Laugh } from 'lucide-react'
+import { ArrowUp01, Briefcase, ChevronsDown, Users, HelpingHand, CheckCircle, ThumbsUp } from 'lucide-react'
 import { useContext, useState } from 'react'
 import { GlobalContext } from '../../../context/GlobalContext'
 import Cookies from 'js-cookie'
 import { api } from '../../../lib/axios'
 
-export function WorkModal() {
+export function Modal() {
     const { setWorkModalIsActive } = useContext(GlobalContext)
     const [ chooseJobTypeIsActive, setChooseJobTypeIsActive] = useState(false)
     const [ typeOfPosition, setTypeOfPosition ] = useState("")

@@ -6,7 +6,7 @@ import { GeneralData } from "./components/generalData/GeneralData";
 import { GlobalContext } from "../../context/GlobalContext";
 import { ChangeForms } from "./components/changeForms/ChangeForms";
 import { Form } from "./components/form/FormDashboard";
-import { WorkModal } from "./components/WorkModal";
+import { Modal } from "./components/Modal";
 
 export function Dashboard() {
 
@@ -24,7 +24,7 @@ export function Dashboard() {
     return(
         <>
             { workModalIsActive &&
-                <WorkModal />
+                <Modal />
             }
             <div className="h-full min-h-screen pb-16 bg-zinc-950">
                 <Header goTo="/menu-inicial/colaboradores"/>
