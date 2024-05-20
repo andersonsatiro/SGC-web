@@ -1,5 +1,8 @@
 import axios from 'axios'
 
 export const api = axios.create({
-    baseURL: 'https://sgc-api-deploy.onrender.com',
+    // PRODUÇÃO
+    //baseURL: 'https://sgc-api-deploy.onrender.com',
+    // DESENVOLVIMENTO
+    baseURL: 'http://localhost:3333',
 })

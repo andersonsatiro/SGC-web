@@ -1,6 +1,5 @@
 import { Header } from "../components/Header";
-import { List, Trash, SlidersHorizontal, WholeWord, Briefcase, Coins, User, ArrowUp01, Square, FilterX } from 'lucide-react'
-import { TableTitle } from "./components/TableTitle";
+import { List, Trash, SlidersHorizontal, FilterX } from 'lucide-react'
 import { useContext, useState, useEffect } from "react";
 import { GlobalContext } from "../../../context/GlobalContext";
 import Cookies from 'js-cookie'
@@ -8,6 +7,8 @@ import { api } from "../../../lib/axios";
 import { ModifyTableButton } from "./components/ModifyTableButton";
 import { Loading } from "../../../components/Loading";
 import { NoCollaborators } from "./NoCollaborators";
+import { useMediaQuery } from "react-responsive";
+import { Table } from "./components/Table";
 
 export function Collaborators () {
     const { getData, leaders, listedCollaborators, setListedCollaborators, collaborators,
@@ -18,6 +19,10 @@ export function Collaborators () {
     const [filterIsActive, setFilterIsActive] = useState(false)
     const [filterModalIsActive, setFilterModalIsActive] = useState(false)
     
+    const screenLarge = useMediaQuery({minWidth: 1008})
+    const screenMedium = useMediaQuery({minWidth: 641, maxWidth: 1007})
+    const screenSmall = useMediaQuery({maxWidth: 640})
+
     const changeTrashItems = async (id: string) => {
         let itemExists = trashItems.includes(id)
         if(itemExists){
@@ -94,13 +99,21 @@ export function Collaborators () {
         <div className="flex flex-col gap-14 h-full min-h-screen bg-zinc-950 pb-16">
             <Header goTo="/menu-inicial" />
 
-            <section className="flex items-center justify-between px-16">
+            <section
+                className={
+                    `${screenLarge ? 'flex items-center justify-between px-16'
+                    : screenMedium || screenSmall ? 'flex flex-col gap-6 items-center justify-center px-4' : ''}`}
+            >
 
                 <div className='flex items-center justify-center gap-2'>
-                    <List className='text-zinc-400 h-5 w-5' />
-                    <h1 className='text-zinc-300 text-2xl font-bold'>
+                    <List className={`${!screenLarge && 'hidden'} text-zinc-400 h-5 w-5`} />
+                    <h1 className={`${!screenLarge && 'text-center'} text-zinc-300 font-bold`}>
 
-                        Lista dos colaboradores
+                        <span
+                            className={`text-2xl ${!screenLarge && 'text-xl'}`}
+                        >
+                            Lista dos colaboradores
+                        </span>
                         <p className="text-xs text-zinc-500 font-medium">
                             { listedCollaborators.length === 0 && !filterIsActive
                                 ? 'adicione o primeiro colaborador para visualizar a lista ou clique em atualizar'
@@ -121,7 +134,7 @@ export function Collaborators () {
                     </h1>
                 </div>
 
-                <div className="flex gap-4">
+                    <div className={`flex gap-4 items-center ${!screenLarge && 'flex-col'}`}>
                     { trashItems.length > 0 ?
                         <ModifyTableButton
                             name={listedCollaborators.length == 1 ? 'Remover selecionado' : 'Remover selecionados'}
@@ -182,44 +195,12 @@ export function Collaborators () {
                 : leaders.length > 0 && listedCollaborators.length === 0
                 ? <NoCollaborators setFilterIsActive={setFilterIsActive} />
                 :
-                    <div className="border-solid border-[1px] border-zinc-500/40 mx-16 rounded-lg">
-                        <header className="flex items-center border-b-[1px] border-b-solid border-b-zinc-500/10">
-
-                            <button className="px-10">
-                                <Square className="text-zinc-400 w-4 h-4 "  />
-                            </button>
-                            <div className="flex items-start py-4 w-full">
-                                <TableTitle name="nome" icon={WholeWord}/>
-                                <TableTitle name="emprego" icon={Briefcase}/>
-                                <TableTitle name="liderança" icon={User}/>
-                                <TableTitle name="salário" icon={Coins}/>
-                                <TableTitle name="influência" icon={ArrowUp01}/>
-                            </div>
-                        </header>
-
-                        <main>
-                            {listedCollaborators.map(({name, jobRole, salary, influence, leaderName, id}, index) => (
-                                <div
-                                    key={index}
-                                    className={`flex items-center border-b-[1px] border-b-solid border-b-zinc-500/10
-                                    ${trashItems.includes(id) ? sendingData ? 'animate-pulse duration-1000 bg-zinc-900' : 'bg-zinc-900' : ''}`}>
-                                    <div
-                                        onClick={() => changeTrashItems(id)}
-                                        className={`border-solid border-[1px] border-zinc-400 w-4 h-4 cursor-pointer hover:border-zinc-200 mx-10 rounded-sm
-                                        ${trashItems.includes(id) && 'border-none bg-indigo-600 hover:bg-indigo-600'}`}
-                                    />
-                                    <div className={`${index % 2 == 0 ? 'text-gray-200' : 'text-indigo-400 '}
-                                                    flex items-start py-4 w-full text-xs font-semibold`}>
-                                        <p className="flex justify-center w-1/5">{name}</p>
-                                        <p className="flex justify-center w-1/5">{jobRole}</p>
-                                        <p className="flex justify-center w-1/5">{leaderName}</p>
-                                        <p className="flex justify-center w-1/5">{transformToReal(salary)}</p>                                   
-                                        <p className="flex justify-center w-1/5"> peso {Number(influence.toFixed(2))}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </main>
-                    </div>                   
+                    <Table
+                        sendingData={sendingData}
+                        changeTrashItems={changeTrashItems}
+                        trashItems={trashItems}
+                        transformToReal={transformToReal}
+                    />                        
                 }
         </div>
     )

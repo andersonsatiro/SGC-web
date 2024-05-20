@@ -4,6 +4,7 @@ import { Sparkles, Briefcase, Coins, User, ArrowUp01, ArrowLeftFromLine } from '
 import { api } from "../../../../lib/axios"
 import Cookies from 'js-cookie'
 import { GlobalContext } from "../../../../context/GlobalContext"
+import { useMediaQuery } from "react-responsive"
 
 interface ModifyTableButtonProps {
     name: string,
@@ -39,6 +40,8 @@ export function ModifyTableButton(
     {   name, arraySize, icon: Icon, className,
         onclick, sendingData, filter, setFilterIsActive, disabled
     }: ModifyTableButtonProps) {
+
+    const screenLarge = useMediaQuery({minWidth: 1008})
 
     const {setListedCollaborators, collaborators, setNameToFilter} = useContext(GlobalContext)
 
@@ -219,7 +222,10 @@ export function ModifyTableButton(
         }
 
     return(
-        <div className="relative">
+        <div
+            className={`relative text-xs
+            ${!screenLarge && 'text-[8px] font-bold'}`}
+        >
             <button
                 onClick={onclick}
                 disabled={disabled}
@@ -227,12 +233,14 @@ export function ModifyTableButton(
                 className={twMerge(
                     `flex items-center gap-2 p-3 max-w-[200px]
                     border-solid border-[1px] border-zinc-500/20 rounded-md
-                    cursor-pointer hover:bg-zinc-900/90 text-zinc-200
+                    cursor-pointer hover:bg-zinc-900/90 text-zinc-200 text-xs
                     ${arraySize === 0 ||  sendingData && 'hover:cursor-not-allowed'}`,
                     className
                 )}
             >
-                <h2 className='text-xs font-semibold'>{name}</h2>
+                <h2 className={`font-semibold ${!screenLarge && 'font-normal'}`}>
+                    {name}
+                </h2>
                 <Icon className='h-3 w-3 text-zinc-200'/>
             </button>
 
@@ -249,7 +257,7 @@ export function ModifyTableButton(
                                 className="h-3 w-3 text-red-500 hover:cursor-pointer"
                                 onClick={returnToInitialFilter}
                             />
-                            <h1 className='text-zinc-200 text-xs font-bold mr-3'>filtrar</h1>
+                            <h1 className='text-zinc-200 font-bold mr-3'>filtrar</h1>
                             <Sparkles className="h-3 w-3 text-indigo-400" />
                         </header>
                     
@@ -265,7 +273,7 @@ export function ModifyTableButton(
                                 key={index}
                                 
                             >
-                                <h1 className='text-zinc-200 text-xs mr-3'>{name}</h1>
+                                <h1 className={`text-zinc-200 mr-3 ${!screenLarge && 'font-light text-[10px]'}`}>{name}</h1>
                                 <Icon className="w-3 h-3 text-green-500" />
                             </div>
                         ))}
