@@ -83,9 +83,12 @@ export function Forms(){
               data-invalid-data={invalidData}
               className='text-xs font-medium text-zinc-400 whitespace-nowrap data-[invalid-data=true]:text-red-300'
               >
-              {invalidData ?
-              'Reveja os dados e envie novamente' :
-              'ir para a página principal'
+              {
+                gettingData
+                ? 'Isso pode levar até um minuto...'
+                : invalidData
+                ? 'Reveja os dados e envie novamente'
+                : 'ir para a página principal'
               }
             </p>
             <div className='w-full border-[.5px] border-solid border-zinc-500 bg-green-100'></div>
