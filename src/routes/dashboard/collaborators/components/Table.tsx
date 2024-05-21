@@ -16,32 +16,28 @@ export function Table({sendingData, changeTrashItems, trashItems, transformToRea
 
   const {listedCollaborators} = useContext(GlobalContext)
 
-  const screenLarge = useMediaQuery({minWidth: 1008})
-  //const screenMedium = useMediaQuery({minWidth: 641, maxWidth: 1007})
+  //const screenLarge = useMediaQuery({minWidth: 1008})
+  const screenMedium = useMediaQuery({minWidth: 641, maxWidth: 1007})
   const screenSmall = useMediaQuery({maxWidth: 640})
 
   return(
     <div
       className={`border-solid border-[1px] border-zinc-500/40 mx-16 rounded-lg
-        ${!screenLarge && 'mx-6'}
+        ${screenMedium && 'mx-6'}
         ${screenSmall && 'mx-3'}
       `}
     >
       <header className="flex items-center border-b-[1px] border-b-solid border-b-zinc-500/10">
-
-        <button
-          className={`px-10 ${screenSmall && 'px-0 ml-4 mr-1'}`}
-        >
-          <Square
-            className={`text-zinc-400 w-4 h-4
-            ${screenSmall && 'w-2.5 h-2.5'}`} 
-          />
-        </button>
+        <Square
+          className={`border-solid border-[1px] border-zinc-400 w-4 h-4 cursor-pointer hover:border-zinc-200 mx-10 rounded-sm
+          ${screenSmall && 'w-2.5 h-2.5 mx-0 mr-1 ml-3'}
+          `}
+        />
 
         <div
           className={`flex items-start py-4 w-full
-          ${!screenLarge && 'text-xs'}
-          ${screenSmall && 'text-[8.9px]'}
+          ${screenMedium && 'text-xs'}
+          ${screenSmall && 'text-[0.57rem]'}
           `}
         >
           <TableTitle name="nome" icon={WholeWord}/>
@@ -59,15 +55,15 @@ export function Table({sendingData, changeTrashItems, trashItems, transformToRea
             className={`flex items-center text-xs
             ${index !== listedCollaborators.length - 1 && ('border-b-[1px] border-b-solid border-b-zinc-500/30')} 
             ${trashItems.includes(id) ? sendingData ? 'animate-pulse duration-1000 bg-zinc-900' : 'bg-zinc-900' : ''}
-            ${!screenLarge && 'text-[8.9px]'}
-            ${screenSmall && 'text-[7px]'}
+            ${screenMedium && 'text-[0.57rem]'}
+            ${screenSmall && 'text-[0.46rem]'}
             `}
           >
               <div
                   onClick={() => changeTrashItems(id)}
                   className={`border-solid border-[1px] border-zinc-400 w-4 h-4 cursor-pointer hover:border-zinc-200 mx-10 rounded-sm
                   ${trashItems.includes(id) && 'border-none bg-indigo-600 hover:bg-indigo-600'}
-                  ${screenSmall && 'w-2.5 h-2.5 mx-0 mr-1 ml-4'}
+                  ${screenSmall && 'w-2.5 h-2.5 mx-0 mr-1 ml-3'}
                   `}
               />
               <div className={`${index % 2 == 0 ? 'text-gray-200' : 'text-indigo-400 '}
